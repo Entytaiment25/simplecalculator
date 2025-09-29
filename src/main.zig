@@ -1,34 +1,18 @@
 const std = @import("std");
 
-fn add(n1: f64, n2: f64) f64 {
-    return n1 + n2;
-}
-
-fn subtract(n1: f64, n2: f64) f64 {
-    return n1 - n2;
-}
-
-fn multiply(n1: f64, n2: f64) f64 {
-    return n1 * n2;
-}
-
-fn divide(n1: f64, n2: f64) f64 {
-    return n1 / n2;
-}
-
-fn parseExpression(input: []const u8) !struct { n1: f64, op: u8, n2: f64 } {
+fn parseExpression(input: []const u8) !struct { first: f64, op: u8, second: f64 } {
     var tokens = std.mem.tokenizeScalar(u8, input, ' ');
 
-    const n1_str = tokens.next() orelse return error.InvalidInput;
+    const first_str = tokens.next() orelse return error.InvalidInput;
     const op_str = tokens.next() orelse return error.InvalidInput;
-    const n2_str = tokens.next() orelse return error.InvalidInput;
+    const second_str = tokens.next() orelse return error.InvalidInput;
 
     if (op_str.len != 1) return error.InvalidInput;
 
-    const n1 = std.fmt.parseFloat(f64, n1_str) catch return error.InvalidInput;
-    const n2 = std.fmt.parseFloat(f64, n2_str) catch return error.InvalidInput;
+    const first = std.fmt.parseFloat(f64, first_str) catch return error.InvalidInput;
+    const second = std.fmt.parseFloat(f64, second_str) catch return error.InvalidInput;
 
-    return .{ .n1 = n1, .op = op_str[0], .n2 = n2 };
+    return .{ .first = first, .op = op_str[0], .second = second };
 }
 
 pub fn main() !void {
@@ -56,14 +40,14 @@ pub fn main() !void {
     };
 
     switch (expr.op) {
-        '+' => try stdout.print("Result: {}\n", .{add(expr.n1, expr.n2)}),
-        '-' => try stdout.print("Result: {}\n", .{subtract(expr.n1, expr.n2)}),
-        '*' => try stdout.print("Result: {}\n", .{multiply(expr.n1, expr.n2)}),
+        '+' => try stdout.print("Result: {}\n", .{expr.first + expr.second}),
+        '-' => try stdout.print("Result: {}\n", .{expr.first - expr.second}),
+        '*' => try stdout.print("Result: {}\n", .{expr.first * expr.second}),
         '/' => {
-            if (expr.n2 == 0.0) {
+            if (expr.second == 0.0) {
                 try stdout.print("Error: Division by zero.\n", .{});
             } else {
-                try stdout.print("Result: {}\n", .{divide(expr.n1, expr.n2)});
+                try stdout.print("Result: {}\n", .{expr.first / expr.second});
             }
         },
         else => try stdout.print("Invalid operation. Supported operations: +, -, *, /\n", .{}),
