@@ -1,0 +1,12 @@
+.{
+    .name = .simplecalculator,
+    .version = "0.0.1",
+    .fingerprint = 0x64a27e839fa3c4a6,
+    .minimum_zig_version = "0.16.0-dev.452+1f7ee99b3",
+    .dependencies = .{},
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
