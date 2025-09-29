@@ -1,18 +1,18 @@
 const std = @import("std");
 
-fn parseExpression(input: []const u8) !struct { first: f64, operation: u8, second: f64 } {
+fn parseExpression(input: []const u8) !struct { f64, u8, f64 } {
     var tokens = std.mem.tokenizeScalar(u8, input, ' ');
 
-    const first_str = tokens.next() orelse return error.InvalidInput;
-    const operation_str = tokens.next() orelse return error.InvalidInput;
-    const second_str = tokens.next() orelse return error.InvalidInput;
+    const first_str = tokens.next();
+    const operation_str = tokens.next();
+    const second_str = tokens.next();
 
-    if (operation_str.len != 1) return error.InvalidInput;
+    if (operation_str == null or operation_str.?.len != 1) return error.InvalidInput;
 
-    const first = std.fmt.parseFloat(f64, first_str) catch return error.InvalidInput;
-    const second = std.fmt.parseFloat(f64, second_str) catch return error.InvalidInput;
+    const first = if (first_str) |str| try std.fmt.parseFloat(f64, str) else 0;
+    const second = if (second_str) |str| try std.fmt.parseFloat(f64, str) else 0;
 
-    return .{ .first = first, .operation = operation_str[0], .second = second };
+    return .{ first, operation_str.?[0], second };
 }
 
 pub fn main() !void {
@@ -33,25 +33,22 @@ pub fn main() !void {
         return;
     }
 
-    const expr = parseExpression(input) catch {
+    const first: f64, const operation: u8, const second: f64 = parseExpression(input) catch {
         try stdout.print("Invalid input format. Please use format: number operator number (e.g., 1 + 1)\n", .{});
         try stdout.flush();
         return;
     };
 
-    switch (expr.operation) {
-        '+' => try stdout.print("Result: {}\n", .{expr.first + expr.second}),
-        '-' => try stdout.print("Result: {}\n", .{expr.first - expr.second}),
-        '*' => try stdout.print("Result: {}\n", .{expr.first * expr.second}),
-        '/' => {
-            if (expr.second == 0.0) {
-                try stdout.print("Error: Division by zero.\n", .{});
-            } else {
-                try stdout.print("Result: {}\n", .{expr.first / expr.second});
-            }
-        },
-        else => try stdout.print("Invalid operation. Supported operations: +, -, *, /\n", .{}),
-    }
+    const result: struct { ?f64, ?[]const u8 } = switch (operation) {
+        '+' => .{ first + second, null },
+        '-' => .{ first - second, null },
+        '*' => .{ first * second, null },
+        '/' => .{ first / second, null },
+        else => .{ null, "Invalid operation. Supported operations: (+, -, *, /)" },
+    };
+
+    if (result.@"0") |value| try stdout.print("Result: {d}\n", .{value});
+    if (result.@"1") |str| try stdout.print("{s}\n", .{str});
 
     try stdout.flush();
 }
