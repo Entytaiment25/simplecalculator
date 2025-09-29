@@ -1,18 +1,18 @@
 const std = @import("std");
 
-fn parseExpression(input: []const u8) !struct { first: f64, op: u8, second: f64 } {
+fn parseExpression(input: []const u8) !struct { first: f64, operation: u8, second: f64 } {
     var tokens = std.mem.tokenizeScalar(u8, input, ' ');
 
     const first_str = tokens.next() orelse return error.InvalidInput;
-    const op_str = tokens.next() orelse return error.InvalidInput;
+    const operation_str = tokens.next() orelse return error.InvalidInput;
     const second_str = tokens.next() orelse return error.InvalidInput;
 
-    if (op_str.len != 1) return error.InvalidInput;
+    if (operation_str.len != 1) return error.InvalidInput;
 
     const first = std.fmt.parseFloat(f64, first_str) catch return error.InvalidInput;
     const second = std.fmt.parseFloat(f64, second_str) catch return error.InvalidInput;
 
-    return .{ .first = first, .op = op_str[0], .second = second };
+    return .{ .first = first, .operation = operation_str[0], .second = second };
 }
 
 pub fn main() !void {
@@ -39,7 +39,7 @@ pub fn main() !void {
         return;
     };
 
-    switch (expr.op) {
+    switch (expr.operation) {
         '+' => try stdout.print("Result: {}\n", .{expr.first + expr.second}),
         '-' => try stdout.print("Result: {}\n", .{expr.first - expr.second}),
         '*' => try stdout.print("Result: {}\n", .{expr.first * expr.second}),
